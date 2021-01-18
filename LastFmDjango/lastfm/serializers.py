@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from lastfm.models import Artist, Album, Track, User
+from lastfm.models import Artist, Album, Track, TrackSpotData, User
 
 
 # class ArtistInfoSerializer(serializers.ModelSerializer):
@@ -28,6 +28,7 @@ class ArtistSerializer(serializers.ModelSerializer):
         model = Artist
         fields = (#'_id',
                     'artist_id',
+                    'rank',
                     'name',
                     'plays',
                     'lfm_link',
@@ -40,11 +41,12 @@ class AlbumSerializer(serializers.ModelSerializer):
         model = Album
         fields = (#'_id',
                     'album_id',
+                    'rank',
                     'name',
                     'plays',
                     'artist',
                     'lfm_link',
-                    'artist_id',
+                    # 'artist_id',
                     'user')
         
 
@@ -53,14 +55,36 @@ class TrackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Track
         fields = (#'_id',
-                    'song_id',
+                    'rank',
+                    'track_id',
                     'name',
                     'plays',
                     'artist',
-                    'lfm_link',
-                    'artist_id',
+                    'lfm_link',                   
                     'user')
-        
+
+class TrackSpotDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrackSpotData
+        fields = (
+                'lfm_id',
+                'danceability',
+                'energy',
+                'key',
+                'loudness',
+                'mode',
+                'speechiness',
+                'acousticness',
+                'instrumentalness',
+                'liveness',
+                'valence',
+                'tempo',
+                'duration_ms',
+                'time_signature',
+                'spot_id'
+        )
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
