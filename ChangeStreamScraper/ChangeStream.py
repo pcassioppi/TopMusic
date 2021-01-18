@@ -3,7 +3,7 @@ from bson.json_util import dumps
 import pymongo
 import json
 
-from lastfmScrape import UserScrape
+from lastfmScrape import scrapeUserData
 
 # import sched, time
 # s = sched.scheduler(time.time, time.sleep)
@@ -24,9 +24,6 @@ client = MongoClient('localhost', 27017)
 
 db = client.lastfm_db
 
-collection_alb = db.lastfm_album
-collection_art = db.lastfm_artist
-collection_t = db.lastfm_track
 collection_user = db.lastfm_user
 
 pipeline = [{'$match': {'operationType': 'insert'}}]
@@ -38,7 +35,7 @@ with collection_user.watch(pipeline) as stream:
         # collection_t.delete_many({'user':username})
         # collection_alb.delete_many({'user':username})
         # collection_art.delete_many({'user':username})
-        UserScrape(username)
+        scrapeUserData(username)
         #collection_user.delete_one({'username':username})
 
 

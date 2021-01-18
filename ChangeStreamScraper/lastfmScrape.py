@@ -1,274 +1,80 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# TO DO:
-# 1. Scrape the "https://www.last.fm/user/wiretable2/library/tracks" page. 
-#     This page holds the persons top 45 tracks
-#     SAVE IN DB:
-#     track name
-#     play count
-#     artist
-#     track link
-#     more later....
-# 2. Add the previous information into a database
-# 3. Repeat process for: https://www.last.fm/user/wiretable2/library/albums and https://www.last.fm/user/wiretable2/library/artists
-#     adding the new information to their own tables
-# 4. Normalize data by creating and linking artist id's with tracks and albums instead of full names.
-# 5. Extend the web scraper to run through the users TOTAL tracks/artists/albums by going through each page
-#     ex. https://www.last.fm/user/wiretable2/library/artists?page=2
-#     then add that new data to the database
-# 6. Using each songs individual page on last.fm (ex. https://www.last.fm/music/Joy+Division/_/Disorder) find the spotify link for 
-#     each song (these are under "Play this track" on the tracks page) and record its track data using spotify API
-
-
+from pymongo import MongoClient
+from bson.json_util import dumps
+import pymongo
+import requests
+import json
 
 from requests import get
 from bs4 import BeautifulSoup
 import re
 
 
-# 
-# ![image.png](attachment:image.png)
 
 
-#username = input("Enter username: ")
+# UserScrape(user)
 
+# base_url = 'https://www.last.fm/user/{}/library/{}?page='
+def scrapeUserData(username):
 
+    def UserInfo(element,username):
+    ##SHould work for all three
+        def getNamesAndLinks(j,ret,soup):
+            i=j
+            for _ in soup.find_all("td", class_="chartlist-name"):
+                ret.append({'name': _.a['title']})
+                ret[i]['lfm_link']=_.a['href']
+                i+=1
 
+        def getPlays(element,j,ret,soup):
+            i=j
+            for _ in soup.find_all("span", class_="chartlist-count-bar-value"):
+                ret[i][element+'_id']=username+':'+str(i)
+                ret[i]['plays']=int(re.search(r'\d+',_.text.replace(',', '').strip()).group())
+                ret[i]['user']=username
+                ret[i]['rank'] = i
+                i+=1
 
+        def getTrackAlbArtists(j,ret,soup):
+            i=j
+            for _ in soup.find_all("td", class_="chartlist-artist"):
+                ret[i]['artist']=_.text.strip()
+                i+=1
 
-#Should try and scrape the page to get the value for z
 
+        def lfmInfo(element, username):
+            ret=[]
 
-def UserScrape(username):
+            el_url = 'https://www.last.fm/user/{}/library/{}s?page='.format(username, element)
+            urls = []
 
-    
-    #creating loop to create urls for each page
+            for z in range(1,2):
+                url = el_url+str(z)
+                urls.append(url)
 
-    #initializing iterator variable
-    z = 1
+            #had to add the j to the i values so the previous pages arent replaced by the new ones
+            j=0
+            for url in urls:
+                response = get(url)
 
-    #creating empty list for urls to be stored in
-    t_urls = []
+                soup = BeautifulSoup(response.text, 'html.parser')     
 
-    #while the number of pages lower than 51
-    #note: if a user does not have 50 pages of songs, last.fm just goes to their last page (92 for me)
-    while z < 2:
-        
-        #generating url using format to insert the incrementing variable on each loop
-        url = 'https://www.last.fm/user/{}/library/tracks?page={}'.format(username,z)
+                getNamesAndLinks(j,ret,soup)
 
-        
-        #appending the url to the list of urls
-        t_urls.append(url)
-        
-        #incrementing iterator variable so it can go to the next page
-        z += 1
 
+                if element == 'track' or element=='album':
+                    getTrackAlbArtists(j,ret,soup)
 
+                getPlays(element, j, ret, soup)
 
+                j+=len(ret)
 
-    #creating empty soup item to store the generated html files in
-    html_soups_t = BeautifulSoup(features="lxml")
+            return ret
+        return lfmInfo(element, username)
 
-    for url in t_urls:
-        
-        #creating response to use in BeautifulSoup function
-        response = get(url)
-        
-        #using the BeautifulSoup function on each response, appending the resulting soup object into the empty 'html_soups'
-        html_soups_t.append(BeautifulSoup(response.text, 'html.parser'))
 
-
-    tracks_og=[]
-    tracks=[]
-    names=[]
-    link=[]
-    artist=[]
-    count=[]
-    for _ in html_soups_t.find_all("td", class_="chartlist-name"):
-        names.append(_.a['title'])
-        link.append(_.a['href'])
-    for _ in html_soups_t.find_all("td", class_="chartlist-artist"):
-        artist.append(_.text.strip())
-    for _ in html_soups_t.find_all("span", class_="chartlist-count-bar-value"):
-        count.append(int(re.search(r'\d+',_.text.replace(',', '').strip()).group()))
-    i=0
-
-    while i < len(names):
-        #tracks_og.append({'song_id':i, 'info':{'name':names[i], 'plays':count[i],'lfm_link':link[i], 'artist':artist[i]}})
-        tracks.append({'song_id':i, 'name':names[i], 'plays':count[i],'lfm_link':link[i], 'artist':artist[i], 'user':username})
-        i+=1
-
-
-
-
-
-    #creating loop to create urls for each page
-
-    #initializing iterator variable
-    z = 1
-
-    #creating empty list for urls to be stored in
-    a_urls = []
-
-    #note: if a user does not have the # of set pages, last.fm just goes to their last page 
-    while z < 17:
-        
-        #generating url using format to insert the incrementing variable on each loop
-        url = 'https://www.last.fm/user/wiretable2/library/artists?page={}'.format(z)
-
-        
-        #appending the url to the list of urls
-        a_urls.append(url)
-        
-        #incrementing iterator variable so it can go to the next page
-        z += 1
-
-
-
-    #creating empty soup item to store the generated html files in
-    html_soups_a = BeautifulSoup(features="lxml")
-
-    for url in a_urls:
-        
-        #creating response to use in BeautifulSoup function
-        response = get(url)
-        
-        #using the BeautifulSoup function on each response, appending the resulting soup object into the empty 'html_soups'
-        html_soups_a.append(BeautifulSoup(response.text, 'html.parser'))
-
-
-
-
-    artists=[]
-    artists_og=[]
-    name=[]
-    count=[]
-    link=[]
-    for _ in html_soups_a.find_all("td", class_="chartlist-name"):
-        name.append(_.a['title'])
-        link.append(_.a['href'])
-    for _ in html_soups_a.find_all("span", class_="chartlist-count-bar-value"):
-        count.append(int(re.search(r'\d+',_.text.replace(',', '').strip()).group()))
-    i=0
-    while i < len(name):
-        artists.append({'artist_id':i, 'name':name[i], 'plays':count[i],'lfm_link':link[i], 'user':username})
-        i+=1
-
-
-
-
-    #TIME TO DO THE ALBUMS SECTION
-    #creating loop to create urls for each page
-
-    #initializing iterator variable
-    z = 1
-
-    #creating empty list for urls to be stored in
-    alb_urls = []
-
-    #note: if a user does not have the # of set pages, last.fm just goes to their last page 
-    while z < 2:
-        
-        #generating url using format to insert the incrementing variable on each loop
-        url = 'https://www.last.fm/user/wiretable2/library/albums?page={}'.format(z)
-
-        
-        #appending the url to the list of urls
-        alb_urls.append(url)
-        
-        #incrementing iterator variable so it can go to the next page
-        z += 1
-
-
-
-    #creating empty soup item to store the generated html files in
-    html_soups_al = BeautifulSoup(features="lxml")
-
-    for url in alb_urls:
-        
-        #creating response to use in BeautifulSoup function
-        response = get(url)
-        
-        #using the BeautifulSoup function on each response, appending the resulting soup object into the empty 'html_soups'
-        html_soups_al.append(BeautifulSoup(response.text, 'html.parser'))
-
-
-
-    albums=[]
-    album=[]
-    artist=[]
-    count=[]
-    link=[]
-    for _ in html_soups_al.find_all("td", class_="chartlist-name"):
-        album.append(_.a['title'])
-        link.append(_.a['href'])
-    for _ in html_soups_al.find_all("td", class_="chartlist-artist"):
-        artist.append(_.text.strip())
-    for _ in html_soups_al.find_all("span", class_="chartlist-count-bar-value"):
-        count.append(int(re.search(r'\d+',_.text.replace(',', '').strip()).group()))
-    i=0
-    while i < len(album):
-        albums.append({'album_id':i, 'name':album[i], 'artist':artist[i],'plays':count[i],'lfm_link':link[i], 'user':username})
-        i+=1
-
-
-
-
-    if username == 'wiretable2':
-        albums[34]['artist']='Travi$ Scott'
-
-
-
-
-    import pandas as pd
-
-
-
-    art_df=pd.json_normalize(artists).drop(columns=['plays','lfm_link','user'])
-    alb_df=pd.json_normalize(albums).drop(columns=['album_id','name','plays','lfm_link','user'])
-    tra_df=pd.json_normalize(tracks).drop(columns=['song_id','name','plays','lfm_link','user'])
-
-    art_df=art_df.rename(columns={'name':'name'})
-
-    alb_df=pd.merge(alb_df, art_df['artist_id'], how='left', left_on='artist', right_on=art_df['name'])
-    #alb_df=alb_df.drop(columns=['artist'])
-
-    tra_df=pd.merge(tra_df, art_df['artist_id'], how='left', left_on='artist', right_on=art_df['name'])
-    #tra_df=tra_df.drop(columns=['artist'])
-
-
-
-    alb_ids = alb_df['artist_id'].astype('float64')
-    track_ids = tra_df['artist_id'].astype('float64')
-
-    j=0
-    for i in tracks:
-        i['artist_id']=track_ids[j]
-        #tracks[j] = {username:i}  
-        # try:
-        #     del i['artist']
-        # except KeyError:
-        #     pass
-        j+=1
-
-
-    j=0
-    for i in albums:
-        i['artist_id']=alb_ids[j]
-        #albums[j] = {username:i}  
-        # try:
-        #     del i['artist']
-        # except KeyError:
-        #     pass
-        j+=1
-
-
-
-    import json
-    from pymongo import MongoClient
-
+    artists = UserInfo('artist',username)
+    albums = UserInfo('album',username)
+    tracks = UserInfo('track',username)
 
     client = MongoClient()
 
@@ -276,25 +82,165 @@ def UserScrape(username):
 
     db = client.lastfm_db
 
-    collection_alb = db.lastfm_album
-    collection_art = db.lastfm_artist
-    collection_t = db.lastfm_track
 
 
-    for x in albums:
-        if '_id' in x: 
-            del x['_id'] 
-        collection_alb.insert_one(x)
+    def insertUserInfo(db,tracks,albums,artists):
+        # client = MongoClient()
 
+        # client = MongoClient('localhost', 27017)
 
+        # db = client.lastfm_db
 
-    for x in tracks:
-        if '_id' in x: 
-            del x['_id'] 
-        collection_t.insert_one(x)
+        collection_alb = db.lastfm_album
+        collection_art = db.lastfm_artist
+        collection_t = db.lastfm_track
+        collection_u = db.lastfm_user
+        # collection_spotData = db.lastfm_spotData
 
-    for x in artists:
-        if '_id' in x: 
-            del x['_id']
+        if collection_alb.count_documents({'user':username}) > 0:
+            query = {'user': username}
+            collection_alb.delete_many(query)
+            collection_art.delete_many(query)
+            collection_t.delete_many(query)
         
-        collection_art.insert_one(x)
+        for x in albums:
+            if '_id' in x: 
+                del x['_id'] 
+            collection_alb.insert_one(x)
+        for x in artists:
+            if '_id' in x: 
+                del x['_id']
+            collection_art.insert_one(x)
+        i=1
+        for x in tracks:
+            if '_id' in x: 
+                del x['_id']
+            x['rank'] = i
+            
+            collection_t.insert_one(x)
+            i+=1
+
+
+    insertUserInfo(db,tracks,albums,artists)
+
+    CLIENT_ID = 'bb3e039f3beb46b18a253e93e8aaea8d'
+    CLIENT_SECRET = '481055b4f0474fcf8eecf67f210b1489'
+
+    def getSpotifyData(noDataTracks):
+        def findSpotId(link):
+            url = 'https://www.last.fm'+link
+
+            soup = BeautifulSoup(get(url).text, 'html.parser')
+
+            spot_id=None
+            if soup.find('a',class_='visible-xs play-this-track-playlink play-this-track-playlink--spotify'):
+                spot_id = soup.find('a',class_='visible-xs play-this-track-playlink play-this-track-playlink--spotify')['href'].split('/')[-1]
+            return spot_id
+        
+        def getIds():
+            
+
+            ids = ''
+        
+            for song in noDataTracks:
+        #         spot_id=None
+                spot_id = findSpotId(song)
+                if spot_id is None:
+                    if '-' in song:
+                        url = song.split('-')[0][:-1]
+                        spot_id = findSpotId(url)
+                    elif '(' in song:
+                        url = song.split('(')[0][:-1]
+                        spot_id = findSpotId(url)
+                    elif '%' in song:
+                        url = song.split('%')[0][:-1]
+                        spot_id = findSpotId(url)
+
+                if spot_id is not None:
+                    ids = ids + ','+ spot_id
+
+                else:
+                    ids = ids+','
+            return ids[1:]
+        
+        def getSpotInfo(ids, CLIENT_ID, CLIENT_SECRET):
+            AUTH_URL = 'https://accounts.spotify.com/api/token'
+
+            auth_response = requests.post(AUTH_URL, {
+                'grant_type': 'client_credentials',
+                'client_id': CLIENT_ID,
+                'client_secret': CLIENT_SECRET,
+            })
+
+            auth_response_data = auth_response.json()
+
+            access_token = auth_response_data['access_token']
+
+            headers = {
+                'Authorization': 'Bearer {token}'.format(token=access_token)
+            }
+
+            BASE_URL = 'https://api.spotify.com/v1/'
+            data = requests.get(BASE_URL + 'audio-features/?ids=' + ids, headers=headers)
+
+            return data.json()
+        
+        def assignTrackData():
+            ret = []
+    #         if len(data['audio_features'])==0:
+    #             return ret
+            
+            for i in range(len(data['audio_features'])):
+                ret.append({'lfm_id':noDataTracks[i]})
+                feat = data['audio_features'][i]
+                if feat:
+                    for j in feat:
+                        ret[i][j]=feat[j]
+                
+            return ret
+
+        ids = getIds()
+        data = getSpotInfo(ids, CLIENT_ID, CLIENT_SECRET)
+                
+        out = assignTrackData()
+        
+        return out
+
+
+    def InsertTracks(db):
+    
+
+        collection_t = db.lastfm_track
+        
+        
+        collection_spotData = db.lastfm_trackspotdata
+        userTrackIds = []
+        for article in collection_t.find({'user':username}):
+            userTrackIds.append(article['lfm_link'])
+        noDataTracks =[]
+        
+        for s in userTrackIds:
+            # checking if there are no documents with the lfm link in the database, if they aren't, append them to list
+            if collection_spotData.count_documents({'lfm_id':s[7:].replace('/','').replace('%','')}) == 0:
+                noDataTracks.append(s)
+    #     return noDataTracks
+        spotData =[]
+        if len(noDataTracks)>0:
+            spotData=getSpotifyData(noDataTracks)
+        
+        for x in spotData:
+            if '_id' in x: 
+                del x['_id']
+            if 'id' in x:
+                x['spot_id']=x['id']
+            else:
+                x['spot_id']=''
+            #have to replace these characters so the links will work for API url
+            x['lfm_id'] = x['lfm_id'][7:].replace('/', '').replace('%', '')
+            
+            collection_spotData.insert_one(x)
+        
+    # if len(noDataTracks)>0:
+    #     spotData=getSpotifyData(noDataTracks)
+    InsertTracks(db)
+
