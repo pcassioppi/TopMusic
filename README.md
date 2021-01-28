@@ -27,8 +27,13 @@ Once the users entered their username and POST-ed it to thje database through th
 
 Once the information for the user was entered into the database, the script would move on and retrieve the Spotify data for the tracks. These two were seperated so the user could see their Last.FM information on the frontend first, before the lengthy process of getting the Spotify data occurred (which was the slowest part of the program). First, the program checked if the track already had its info present in the database, if it didn't, the track was saved into an array to be entered into the Spotify scraper. The script would go to each tracks individual page and see if there was a Spotify link present, if there was, the Spotify ID was taken and used to retrieve the track data from Spotify's Developer API. This data was then stored on the database spotifyTrackData collection with the songs (slightly altered) last.fm link as it's id (this was chosen as the ID because it was also present in the users information, making it simple for the users track page to find it).
 
-### Django REST API
+### LastFMDjango REST API
+#### Tools Used: Django REST Framework, Djongo
 
+The REST API was created to act as an interface between the MongoDB and the React frontend.
+Views were created for tracks, albums, artists, users, and the spotify data.
+
+The API framework I chose to use for this project was Django's REST Framework. I used Django both because I wanted experience with a major Python framework, and it had the support I needed to use the NoSQL MongoDB database I wanted to use. Though Django is made for a relational database, I was able to use the Djongo engine to make the framework mesh with MongoDB. Djongo translates the SQL queries made to the API as MongoDB queries, allowing the fromework and database to work together as if it were a relational database. 
 
 
 ### Frontend
