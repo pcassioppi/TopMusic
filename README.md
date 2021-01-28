@@ -1,6 +1,5 @@
 # TopMusic
 
-This README is mostly so I can refer back to it for interview purposes, if you've made it here and your name doesn't rhyme with "Peter Cassioppi"....congrats.
 
 I made this project to get better with Python and Javascript, as well as gain experience with new (to me) technologies, including Django, MongoDB, and React. I wanted to answer the question I've always had "How are complex websites really structured?", and I gained a lot of understanding of what goes into constructing a dynamic website. This included creating the NoSQL MongoDB database to store the information, the Django REST API to host the info, and the React frontend to display the information.
 
