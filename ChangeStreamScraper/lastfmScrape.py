@@ -139,8 +139,8 @@ def scrapeUserData(username):
 
     insertUserInfo(db,tracks,albums,artists)
 
-    CLIENT_ID = 'bb3e039f3beb46b18a253e93e8aaea8d'
-    CLIENT_SECRET = '481055b4f0474fcf8eecf67f210b1489'
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
 
     def getSpotifyData(noDataTracks):
         def findSpotId(link):
