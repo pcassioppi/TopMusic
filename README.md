@@ -40,8 +40,20 @@ The API framework I chose to use for this project was Django's REST Framework. I
 
 Components: Form/Homepage, ArtistPage, TrackPage, AlbumPage, Spotify Track Data Page, Navigation bar
 
-For the front end of the application I decided to use React because of its large usage in industry, and its ability to create dynamic web applications. The front end allows users to POST their username, and GET their last.fm and Spotify track data. React-Bootstrap was used for many of the elements becauyse I think it looks nice :^) , and it is commonly used. This gave me good experience in what it is like to design a website so it is intuitive and looks good (and works lol).
+For the front end of the application I decided to use React because of its large usage in industry, and its ability to create dynamic web applications. Axios was the library used to make requests to the REST API. The front end allows users to POST their username, and GET their last.fm and Spotify track data. React-Bootstrap was used for many of the elements becauyse I think it looks nice :^) , and it is commonly used. This gave me good experience in what it is like to design a website so it is intuitive and looks good (and works lol).
 
-Images:
+Images (at the top right the username is saved after it is entered):
+Album Page:
+![Alt](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/albumPage.png)
 
-![Test](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/albumPage.png)
+Album Page:
+![Alt](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/albumPage.png)
+
+Album Page:
+![Alt](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/trackPage.png)
+
+Album Page:
+![Alt](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/artistPage.png)
+
+Album Page:
+![Alt](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/albumPage.png)
