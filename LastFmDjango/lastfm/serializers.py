@@ -8,20 +8,6 @@ from lastfm.models import Artist, Album, Track, TrackSpotData, User
 #         fields =['name','plays','lfm_link']
 
 
-# class ArtistSerializer(serializers.ModelSerializer):
-#     info = ArtistInfoSerializer(many=True)
-
-#     class Meta:
-#         model=Artist
-#         fields = ['artist_id','info']
-    
-#     def create(self, validated_data):
-#         artist_info_data = validated_data.pop('info')
-#         artist = Artist.objects.create(**validated_data)
-#         for info_data in artist_info_data:
-#             ArtistInfo.objects.create(artist=artist, **info_data)
-#         return artist
-
 class ArtistSerializer(serializers.ModelSerializer):
  
     class Meta:
@@ -32,6 +18,7 @@ class ArtistSerializer(serializers.ModelSerializer):
                     'name',
                     'plays',
                     'lfm_link',
+                    'image',
                     'user')
 
 class AlbumSerializer(serializers.ModelSerializer):
@@ -46,6 +33,7 @@ class AlbumSerializer(serializers.ModelSerializer):
                     'plays',
                     'artist',
                     'lfm_link',
+                    'image',
                     # 'artist_id',
                     'user')
         
@@ -60,7 +48,8 @@ class TrackSerializer(serializers.ModelSerializer):
                     'name',
                     'plays',
                     'artist',
-                    'lfm_link',                   
+                    'lfm_link',
+                    'image',
                     'user')
 
 class TrackSpotDataSerializer(serializers.ModelSerializer):
@@ -68,6 +57,7 @@ class TrackSpotDataSerializer(serializers.ModelSerializer):
         model = TrackSpotData
         fields = (
                 'lfm_id',
+                'image',
                 'danceability',
                 'energy',
                 'key',

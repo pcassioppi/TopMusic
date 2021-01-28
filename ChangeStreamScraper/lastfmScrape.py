@@ -25,7 +25,7 @@ def scrapeUserData(username):
                 ret[i]['lfm_link']=_.a['href']
                 i+=1
 
-        def getPlays(element,j,ret,soup):
+        def getPlays(element, j, ret, soup):
             i=j
             for _ in soup.find_all("span", class_="chartlist-count-bar-value"):
                 ret[i][element+'_id']=username+':'+str(i)
@@ -34,12 +34,24 @@ def scrapeUserData(username):
                 ret[i]['rank'] = i
                 i+=1
 
-        def getTrackAlbArtists(j,ret,soup):
+        def getTrackAlbArtists(j, ret, soup):
             i=j
             for _ in soup.find_all("td", class_="chartlist-artist"):
                 ret[i]['artist']=_.text.strip()
                 i+=1
 
+        ##ADD THIS TO FRONT: https://lastfm.freetls.fastly.net/i/u/64s/ to get image
+        def getTrackArt(j, ret, soup):
+                i=j
+                for _ in soup.find_all("td", class_="chartlist-image"):
+                    ret[i]['image'] = _.img['src'][42:]
+                    i+=1
+        ## for artists: https://lastfm.freetls.fastly.net/i/u/avat
+        def getArtistAlbumArt(j, ret, soup):
+            i=j
+            for _ in soup.find_all("td", class_="chartlist-image"):
+                ret[i]['image'] = _.span.img['src'][42:]
+                i+=1
 
         def lfmInfo(element, username):
             ret=[]
@@ -63,6 +75,10 @@ def scrapeUserData(username):
 
                 if element == 'track' or element=='album':
                     getTrackAlbArtists(j,ret,soup)
+                if element =='track':
+                    getTrackArt(j,ret,soup)
+                else:
+                    getArtistAlbumArt(j,ret,soup)
 
                 getPlays(element, j, ret, soup)
 
@@ -192,6 +208,7 @@ def scrapeUserData(username):
             
             for i in range(len(data['audio_features'])):
                 ret.append({'lfm_id':noDataTracks[i]})
+                ret[i]['image']=tracks[i]['image']
                 feat = data['audio_features'][i]
                 if feat:
                     for j in feat:

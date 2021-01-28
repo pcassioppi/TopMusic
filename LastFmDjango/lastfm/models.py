@@ -14,6 +14,7 @@ class Artist(models.Model):
     name = models.CharField(max_length=70, blank=False, default='')
     plays = models.PositiveIntegerField(default=0)
     lfm_link = models.CharField(max_length=70, blank=False, default='')
+    image = models.CharField(max_length=100, default='')
     user = models.CharField(max_length=30, blank=False, default='')
 
 class Album(models.Model):
@@ -23,6 +24,7 @@ class Album(models.Model):
     plays = models.PositiveIntegerField(default=0)
     artist = models.CharField(max_length=70, blank=False, default='')
     lfm_link = models.CharField(max_length=70, blank=False, default='')
+    image = models.CharField(max_length=100, default='')
     # artist_id = models.PositiveIntegerField()
     user = models.CharField(max_length=30, blank=False, default='')
 
@@ -42,13 +44,15 @@ class Track(models.Model):
     plays = models.PositiveIntegerField(default=0)
     artist = models.CharField(max_length=70, blank=False, default='')
     lfm_link = models.CharField(max_length=70, blank=False, default='')
+    image = models.CharField(max_length=100, default='')
     user = models.CharField(max_length=30, blank=False, default='')
 
     #ordering by name. This may help with a search
     # class Meta:
     #     ordering = ['name']
 class TrackSpotData(models.Model):
-    lfm_id = models.CharField(unique=True, max_length=100, primary_key=True)    
+    lfm_id = models.CharField(unique=True, max_length=100, primary_key=True)
+    image = models.CharField(max_length=100, default='')    
     danceability = models.FloatField(blank=True, default=None)
     energy = models.FloatField(blank=True, default=None)
     key = models.FloatField(blank=True, default=None)
