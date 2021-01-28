@@ -35,5 +35,13 @@ Views were created for tracks, albums, artists, users, and the spotify data.
 
 The API framework I chose to use for this project was Django's REST Framework. I used Django both because I wanted experience with a major Python framework, and it had the support I needed to use the NoSQL MongoDB database I wanted to use. Though Django is made for a relational database, I was able to use the Djongo engine to make the framework mesh with MongoDB. Djongo translates the SQL queries made to the API as MongoDB queries, allowing the fromework and database to work together as if it were a relational database. 
 
-
 ### Frontend
+#### Tools Used: React-Bootstrap, Axios, HTML
+
+Components: Form/Homepage, ArtistPage, TrackPage, AlbumPage, Spotify Track Data Page, Navigation bar
+
+For the front end of the application I decided to use React because of its large usage in industry, and its ability to create dynamic web applications. The front end allows users to POST their username, and GET their last.fm and Spotify track data. React-Bootstrap was used for many of the elements becauyse I think it looks nice :^) , and it is commonly used. This gave me good experience in what it is like to design a website so it is intuitive and looks good (and works lol).
+
+Images:
+
+![Test](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/albumPage.png)
