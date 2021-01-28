@@ -1,5 +1,7 @@
 # TopMusic
 
+This README is mostly so I can refer back to it for interview purposes, if you've made it here and your name doesn't rhyme with "Peter Cassioppi"....congrats.
+
 I made this project to get better with Python and Javascript, as well as gain experience with new (to me) technologies, including Django, MongoDB, and React. I wanted to answer the question I've always had "How are complex websites really structured?", and I gained a lot of understanding of what goes into constructing a dynamic website. This included creating the NoSQL MongoDB database to store the information, the Django REST API to host the info, and the React frontend to display the information.
 
 
@@ -19,9 +21,14 @@ In order to have the scraping functionality I wanted to use, I ended up using Mo
 A Replica Set is required in order to run the Change Streams function in MongoDB, since you want to be able to read and write to the database at the same time. In my case, the Change Stream is reading the database to see if any changes are occurring, and the API is also using the database to read/write any information it needs. 
 
 ### Change Streams Scraper
+#### Tools Used: BeautifulSoup, PyMongo, Spotify API
 
+Once the users entered their username and POST-ed it to thje database through the frontend, the Change Stream would trigger a script to scrape the data for that user from Last.FM. The script scraped the users page and parsed their information using the BeautifulSoup library. The data for the users tracks, artists, and albums were all entered into the collections for their respective data in the MongoDB database using PyMongo.
 
+Once the information for the user was entered into the database, the script would move on and retrieve the Spotify data for the tracks. These two were seperated so the user could see their Last.FM information on the frontend first, before the lengthy process of getting the Spotify data occurred (which was the slowest part of the program). First, the program checked if the track already had its info present in the database, if it didn't, the track was saved into an array to be entered into the Spotify scraper. The script would go to each tracks individual page and see if there was a Spotify link present, if there was, the Spotify ID was taken and used to retrieve the track data from Spotify's Developer API. This data was then stored on the database spotifyTrackData collection with the songs (slightly altered) last.fm link as it's id (this was chosen as the ID because it was also present in the users information, making it simple for the users track page to find it).
 
 ### Django REST API
+
+
 
 ### Frontend
