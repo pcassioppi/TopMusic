@@ -41,7 +41,7 @@ Components: Home/Form page, Artist Page, Track Page, Album Page, Track Spotify D
 
 For the front end of the application I decided to use React because of its large usage in industry, and its ability to create dynamic web applications. Axios was the library used to make requests to the REST API. The front end allows users to POST their username, and GET their last.fm and Spotify track data. React-Bootstrap was used for many of the elements becauyse I think it looks nice :^) , and it is commonly used. This gave me good experience in what it is like to design a website so it is intuitive and looks good (and works lol).
 
-Images (at the top right the username is saved after it is entered):
+##  Images (at the top right the username is saved after it is entered):
 
 Home/Form Page:
 ![Alt](https://github.com/pcassioppi/TopMusic/blob/master/Screenshots/form.png)
